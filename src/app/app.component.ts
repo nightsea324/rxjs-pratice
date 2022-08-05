@@ -7,24 +7,32 @@ import { concatAll, fromEvent, map, takeUntil } from 'rxjs';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  title = 'rxjs-pratice';
+  title = 'rxjs';
 
   ngOnInit(): void {
-    const dragDom = document.getElementById('drag');
+    this.drag();
+  }
+
+  /**
+   * drag - 拖拉方塊事件
+   */
+  drag() {
+    // get element
+    const dragDom = document.getElementById('drag') as HTMLElement;
     const body = document.body;
-    if (dragDom && body) {
-      const mouseDown = fromEvent<MouseEvent>(dragDom, 'mousedown');
-      const mouseUp = fromEvent<MouseEvent>(body, 'mouseup');
-      const mouseMove = fromEvent<MouseEvent>(body, 'mousemove');
-      mouseDown
-        .pipe(
-          map(() => mouseMove.pipe(takeUntil(mouseUp))),
-          concatAll()
-        )
-        .subscribe((event) => {
-          dragDom.style.left = `${event.clientX}px`;
-          dragDom.style.top = `${event.clientY}px`;
-        });
-    }
+    // set event
+    const mouseDown = fromEvent<MouseEvent>(dragDom, 'mousedown');
+    const mouseUp = fromEvent<MouseEvent>(body, 'mouseup');
+    const mouseMove = fromEvent<MouseEvent>(body, 'mousemove');
+    // rxjs drag
+    mouseDown
+      .pipe(
+        map(() => mouseMove.pipe(takeUntil(mouseUp))),
+        concatAll()
+      )
+      .subscribe((event) => {
+        dragDom.style.left = `${event.clientX}px`;
+        dragDom.style.top = `${event.clientY}px`;
+      });
   }
 }
