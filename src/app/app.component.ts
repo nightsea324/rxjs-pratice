@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {
   concatAll,
+  delay,
   filter,
   fromEvent,
   map,
@@ -19,6 +20,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.scrollVideo();
     this.dragVideo();
+    this.followImg();
   }
 
   /**
@@ -90,5 +92,38 @@ export class AppComponent implements OnInit {
    */
   validValue(value: number, max: number, min: number): number {
     return Math.min(Math.max(value, min), max);
+  }
+
+  /**
+   * followImg - 追蹤照片
+   */
+  followImg() {
+    // get element
+    const imgList = document.getElementsByTagName('img');
+    // set DOMArr
+    const DOMArr = Array.from(imgList);
+    // set event
+    const movePos = fromEvent<MouseEvent>(document, 'mousemove');
+    // setDelayTime
+    const delayTime = 50;
+    // set bgcolor
+    const bgColor = Number(Math.random() * 360 + 1);
+
+    movePos.pipe(
+      map((event) => ({
+        x: event.offsetX,
+        y: event.offsetY,
+      }))
+    );
+    // rx
+    DOMArr.reverse().forEach((item, index) => {
+      movePos.pipe(delay(delayTime * index)).subscribe((pos) => {
+        item.style.transform = `translate3d( ${
+          pos.x - item.getBoundingClientRect().width / 2
+        }px,${pos.y - item.getBoundingClientRect().height / 2}px,0)`;
+        item.style.backgroundColor = `hsl(${bgColor * index},100%,50%)`;
+        item.style.border = `3px hsl(${bgColor * index},100%,50%) solid`;
+      });
+    });
   }
 }
